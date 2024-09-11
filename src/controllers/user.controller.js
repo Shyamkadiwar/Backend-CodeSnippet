@@ -194,8 +194,9 @@ const changeCurrentPassword = asyncHandler(async(req,res)=>{
     const {oldPassword, newPassword} = req.body
 
     const user = await User.findById(req.user?._id) // taken from middleware
-    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
-    if(!isPasswordCorrect){
+    console.log(oldPassword)
+    const isPasswordValid = await user.isPasswordCorrect(oldPassword)
+    if(!isPasswordValid){
         throw new ApiError(400,"Invalid Old Password")
     }
 
@@ -211,31 +212,36 @@ const changeCurrentPassword = asyncHandler(async(req,res)=>{
 const getCurrentUser = asyncHandler(async(req,res)=>{
     return res
     .status(200)
-    .json(new ApiResponse(200, {user}, "current user fetched successfully"))
+    .json(new ApiResponse(200, res._id?.user, "current user fetched successfully"))
 })
 
 
-const updateAccountDetails = asyncHandler(async(req,res)=>{
-    const {fullName, email, } = req.body
-    if(!fullName || !email){
-        throw new ApiError(400, "All field are required")
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    const { fullName, email } = req.body;
+    
+    // Validate input
+    if (!fullName || !email) {
+        throw new ApiError(400, "All fields are required");
     }
 
-    const user = User.findByIdAndUpdate(
+    // Update user details and await the result
+    const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set: {
                 fullName,
-                email: email // both the syntax are same
-            }
+                email,
+            },
         },
-        {new : true}
-    ).select("-password")
+        { new: true }
+    ).select("-password");
 
+    // Respond with the updated user details
     return res
-    .status(200)
-    .json(new ApiResponse(200,user,"Account detail updated successfully"))
-})
+        .status(200)
+        .json(new ApiResponse(200, user, "Account details updated successfully"));
+});
+
 
 
 const updateUserAvatar = asyncHandler(async(req,res)=>{
