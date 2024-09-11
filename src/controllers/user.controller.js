@@ -86,43 +86,45 @@ const loginUser = asyncHandler(async (req, res) => {
     // Getting data from the request body
     const { email, username, password } = req.body;
     if (!(username || email)) {
-        throw new ApiError(400, "Username or email is required");
+      throw new ApiError(400, "Username or email is required");
     }
-
+  
     const user = await User.findOne({
-        $or: [{ username }, { email }]
+      $or: [{ username }, { email }]
     });
     if (!user) {
-        throw new ApiError(404, "User does not exist");
+      throw new ApiError(404, "User does not exist");
     }
-
+  
     const isPasswordValid = await user.isPasswordCorrect(password);
     if (!isPasswordValid) {
-        throw new ApiError(401, "Incorrect Password");
+      throw new ApiError(401, "Incorrect Password");
     }
-
+  
     const { accessToken, refreshToken } = await generateAccessAndRefreshTockens(user._id);
-
+  
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
-
-    const options = {
-        httpOnly: true,
-        secure: true, // Security steps for cookies
+  
+    // Options for setting cookies
+    const cookieOptions = {
+      httpOnly: true, // Ensures the cookie cannot be accessed via JavaScript
+      secure: process.env.NODE_ENV === 'production', // Set to true if in production
+      sameSite: 'Strict' // Adjust based on your use case
     };
-
-    return res
-        .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
-        .json(
-            new ApiResponse(200,
-                {
-                    user: loggedInUser, accessToken, refreshToken
-                },
-                "User Logged in successfully"
-            )
-        );
-});
+  
+    // Set cookies
+    res.cookie('accessToken', accessToken, cookieOptions);
+    res.cookie('refreshToken', refreshToken, cookieOptions);
+  
+    // Respond with JSON data
+    return res.status(200).json({
+      user: loggedInUser,
+      accessToken,
+      refreshToken,
+      message: "User Logged in successfully"
+    });
+  });
+  
 
 
 const logoutUser = asyncHandler(async (req, res) => {
@@ -210,9 +212,10 @@ const changeCurrentPassword = asyncHandler(async(req,res)=>{
 
 
 const getCurrentUser = asyncHandler(async(req,res)=>{
+    const user = await User.findById(req.user?._id);
     return res
     .status(200)
-    .json(new ApiResponse(200, res._id?.user, "current user fetched successfully"))
+    .json(new ApiResponse(200, user, "current user fetched successfully"))
 })
 
 
