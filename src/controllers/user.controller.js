@@ -25,7 +25,7 @@ const generateAccessAndRefreshTockens = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
     // Getting data from the request body
     const { fullName, email, username, password } = req.body;
-    console.log("email:", email);
+    // console.log("email:", email);
 
     // Validation
     if ([fullName, email, username, password].some((field) => field?.trim() === "")) {
@@ -211,7 +211,7 @@ const changeCurrentPassword = asyncHandler(async(req,res)=>{
 })
 
 
-const getCurrentUser = asyncHandler(async(req,res)=>{
+const getCurrentUser = asyncHandler(async(req,res)=>{   
     const user = await User.findById(req.user?._id);
     return res
     .status(200)

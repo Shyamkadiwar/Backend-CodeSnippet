@@ -47,7 +47,7 @@ const userSchema = new Schema({
 }, { timestamps: true })
 
 userSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) return next(); // we have wri tten this beacuse whenever password changes then and only then password should get encypted if we dont write this if then it will always encrypt your password whenever any field is being modified.
+    if (!this.isModified("password")) return next(); // we have written this beacuse whenever password changes then and only then password should get encypted if we dont write this if then it will always encrypt your password whenever any field is being modified.
     this.password = await bcrypt.hash(this.password, 10)
     next()
 })

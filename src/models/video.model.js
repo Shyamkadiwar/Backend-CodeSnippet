@@ -15,22 +15,22 @@ const videoSchema = new Schema({
         type: String,
         required: true
     },
-    discription: {
+    description: {
         type: String,
         required: true
     },
-    duration: {
-        type: Number, //from cloudnary
-        required: true
-    },
-    views: {
-        type: Number,
-        default: 0
-    },
-    isPublished: {
-        type: Boolean,
-        default: true
-    },
+    // duration: {
+    //     type: Number, //from cloudnary
+    //     required: true
+    // },
+    // views: {
+    //     type: Number,
+    //     default: 0
+    // },
+    // isPublished: {
+    //     type: Boolean,
+    //     default: true
+    // },
     owner: {
         type: Schema.Types.ObjectId,
         ref: 'User'

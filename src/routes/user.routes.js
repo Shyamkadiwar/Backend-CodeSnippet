@@ -3,6 +3,7 @@ import { changeCurrentPassword, getChannelProfile, getCurrentUser, getWatchHisto
 import { upload } from "../middlewares/multer.middleware.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import multer from "multer";
+import { getVideo, uploadVideo } from "../controllers/video.controller.js";
 
 const router = Router()
 
@@ -20,6 +21,7 @@ router.route("/register").post(
     registerUser
 )
 
+
 router.route("/login").post(loginUser)
 
 // secured routes
@@ -33,6 +35,24 @@ router.route("/avatar").patch(verifyJWT,upload.single("avatar"),updateUserAvatar
 router.route("/cover-image").patch(verifyJWT,upload.single("coverImage"),updateUserCoverImage)
 router.route("/c/:username").get(verifyJWT,getChannelProfile)
 router.route("/history").get(verifyJWT,getWatchHistory)
+
+router.route("/upload-video").post(verifyJWT,
+    upload.fields([ // this is middleware
+        {
+            name: 'video',
+            maxCount: 1
+        },
+        {
+            name: 'thumbnail',
+            maxCount: 1
+        },
+    ]),
+    uploadVideo
+)
+
+router.route("/get-video").get(verifyJWT,getVideo)
+
+
 
 
 export default router
